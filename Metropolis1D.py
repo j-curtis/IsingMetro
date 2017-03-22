@@ -48,7 +48,7 @@ class Lattice:
 	
 		#Pairing = 1/N Sum_j S[j] S[j-1]
 		pairInt = 0.0
-		for i in xrange(0,self.size):
+		for i in np.arange(0,self.size):
 			pairInt += scaleToSymmInt(self.spins[i])*scaleToSymmInt(self.spins[i-1])
 
 		pairInt /= np.float(self.size)
@@ -80,8 +80,8 @@ class Lattice:
 		#We also compute the change in magnetization and pairing 
 		#For a single spin-1/2 Ising spin being flipped the change in energy for flipping S[j] can be computed as 
 		energyChange = -2.0*neighbors[1]*(self.hConst + self.jConst*(neighbors[0]+neighbors[2]))	
-		pairChange = -2.0*self.jConst*neighbors[1]*(neighbors[0]+neighbors[2])
-		magChange = -2.0*self.hConst*neighbors[1]
+		pairChange = -2.0*neighbors[1]*(neighbors[0]+neighbors[2])
+		magChange = -2.0*neighbors[1]
 
 		#Now we accept the spin flip with the probability of min(1,e^{-Delta E})
 		#To do this, we draw a number r randomly from Uniform(0,1)
@@ -92,30 +92,27 @@ class Lattice:
 
 		#If we accept the change, we will also update the magnetization and energy of the lattice by adding the changes 
 		if testnum < np.exp(-energyChange):
-			print "Accept"
 			self.spins[site] = 1 - spin	#This flips the spin value 
 			
 			#Now we update the internal variables
 			self.energyPerSite += energyChange/self.size
 			self.pairPerSite += pairChange/self.size
 			self.magPerSite += magChange/self.size
-		else:
-			print "Reject"
 
 def main():
 	lattice = Lattice(10,1.0,1.0)
 	lattice.randomize()
-	print lattice
+	print(lattice)
 
 	lattice.calcEnergy()
-	print lattice.magPerSite
-	print lattice.pairPerSite
-	print lattice.energyPerSite
+	print(lattice.magPerSite)
+	print(lattice.pairPerSite)
+	print(lattice.energyPerSite)
 
 	lattice.metropolis()
-	print lattice.magPerSite
-	print lattice.pairPerSite
-	print lattice.energyPerSite
+	print(lattice.magPerSite)
+	print(lattice.pairPerSite)
+	print(lattice.energyPerSite)
 	
 
 if __name__ == "__main__":
