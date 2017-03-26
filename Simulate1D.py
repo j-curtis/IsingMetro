@@ -17,7 +17,7 @@ class Simulation:
 		#We initialize the arrays to be full of the initial values of these observables
 		self.energy = np.full(shape=self.nSteps,fill_value=self.latt.energyPerSite)	
 		self.mag = np.full(shape=self.nSteps,fill_value=self.latt.magPerSite)		
-		self.pair = np.full(self.nSteps,fill_values=self.latt.pairPerSite)
+		self.pair = np.full(self.nSteps,fill_value=self.latt.pairPerSite)
 	
 	def __repr__(self):
 		return self.pair.__repr__() 
@@ -28,7 +28,7 @@ class Simulation:
 			#Fill observables
 			self.energy[i] = self.latt.energyPerSite
 			self.mag[i] = self.latt.magPerSite
-			self.pair[i] = self.pairPerSite
+			self.pair[i] = self.latt.pairPerSite
 
 			#Run one time step
 			self.latt.metropolisStep()
