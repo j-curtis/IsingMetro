@@ -34,12 +34,15 @@ class Lattice:
 		#Initialized to zero, updated when appropriate methods are called 
 		self.energyPerSite = 0.0
 
+		self.calcEnergy()
+
 	def __repr__(self):
 		return self.spins.__repr__()
 
 	def randomize(self):
 		"""Randomizes the spins in the lattice with a uniform distribution"""
 		self.spins = np.random.randint(low=0,high=2,size=self.size)
+		self.calcEnergy()
 
 	def calcEnergy(self):
 		"""Computes the lattice-site-average magnetization, pairing, and energy of the lattice"""
@@ -79,9 +82,9 @@ class Lattice:
 		#Now we calculate the change in energy we would get by flipping this spin 
 		#We also compute the change in magnetization and pairing 
 		#For a single spin-1/2 Ising spin being flipped the change in energy for flipping S[j] can be computed as 
-		energyChange = -2.0*neighbors[1]*(self.hConst + self.jConst*(neighbors[0]+neighbors[2]))	
 		pairChange = -2.0*neighbors[1]*(neighbors[0]+neighbors[2])
 		magChange = -2.0*neighbors[1]
+		energyChange = self.hConst*magChange + self.jConst*pairChange	
 
 		#Now we accept the spin flip with the probability of min(1,e^{-Delta E})
 		#To do this, we draw a number r randomly from Uniform(0,1)
@@ -91,13 +94,18 @@ class Lattice:
 		testnum = np.random.ranf()
 
 		#If we accept the change, we will also update the magnetization and energy of the lattice by adding the changes 
+		#It also returns whether the flip was accepted or rejected 
 		if testnum < np.exp(-energyChange):
 			self.spins[site] = 1 - spin	#This flips the spin value 
 			
 			#Now we update the internal variables
-			self.energyPerSite += energyChange/self.size
-			self.pairPerSite += pairChange/self.size
-			self.magPerSite += magChange/self.size
+			self.energyPerSite += energyChange/float(self.size)
+			self.pairPerSite += pairChange/float(self.size)
+			self.magPerSite += magChange/float(self.size)
+		
+			return 1
+		else:
+			return 0
 
 def main():
 	lattice = Lattice(10,1.0,1.0)
