@@ -40,4 +40,42 @@ class Simulation:
 			#Run one time step
 			self.latt.metropolisStep()
 		
+class Ensemble:
+	"""This is a class which generates an ensemble of simulations all starting from the same ordered state"""
+	def __init__(self,Dimension,Size,J,H,NSteps,NTrials):
+		"""Runs NTrials simulations of the other parameters"""
+		self.dim = Dimension
+		self.nTrials = NTrials 
+		self.nSteps = NSteps 
+		self.size = Size 
+		self.jConst = J 
+		self.hConst = H 
+
+		#ensemble of energy, magnetization, and pair correlation vs. time
+		self.energy = np.full(shape = (self.nTrials,self.nSteps), fill_value = 0.0)
+		self.mag = np.full(shape = (self.nTrials,self.nSteps), fill_value = 0.0)
+		self.pair = np.full(shape = (self.nTrials,self.nSteps), fill_value = 0.0)
+
+		#ensemble averages of observables vs. time and their correlations
+		self.energyMean = np.full(shape = self.nSteps, fill_value = 0.0)
+		self.magMean = np.full(shape = self.nSteps, fill_value = 0.0)
+		self.pairMean = np.full(shape = self.nSteps, fill_value = 0.0)
+		
+		self.energyCorrelation = np.full(shape = self.nSteps, fill_value = 0.0)	
+
+	def generate(self):
+		"""Generates the data via simulations"""
+		for i in np.arange(self.nTrials):
+			sim = Simulation(self.dim,self.size,self.jConst,self.hConst,self.nSteps)
+			sim.simulate()
 			
+			self.energy[i,:] += sim.energy[:] 
+			self.mag[i,:] += sim.mag[:]
+			self.pair[i,:] += sim.pair[:]
+
+	def avg(self):
+		"""Computes ensemble averages"""
+		 
+		self.energyMean = np.average(self.energy,axis=0)
+		self.magMean = np.average(self.mag,axis=0)
+		self.pairMean = np.average(self.pair,axis=0)
