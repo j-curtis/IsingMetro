@@ -62,14 +62,11 @@ class Ensemble:
 		self.energyMean = np.full(shape = self.nSteps, fill_value = 0.0)
 		self.magMean = np.full(shape = self.nSteps, fill_value = 0.0)
 		self.pairMean = np.full(shape = self.nSteps, fill_value = 0.0)
-		
-		#disconnected ensemble averages of two-time observables vs. time1 and time2 
-		#<E(t1) E(t2) >
-		#And similarly for other observables
-		self.energyCorr = np.full(shape = (self.nSteps,self.nSteps), fill_value = 0.0)	
-		self.magCorr = np.full(shape = (self.nSteps,self.nSteps), fill_value = 0.0)
-		self.pairCorr = np.full(shape = (self.nSteps,self.nSteps), fill_value = 0.0)
 
+		#ensemble averages of two-time observables vs. time 
+		# Sum_t( E(t) E(t+T) ) 
+		self.energyCorr = np.full(shape = (self.nTrials,self.nSteps), fill_value = 0.0)
+	
 	def generate(self):
 		"""Generates the data via simulations"""
 		for i in np.arange(self.nTrials):
@@ -87,13 +84,9 @@ class Ensemble:
 		self.magMean = np.average(self.mag,axis=0)
 		self.pairMean = np.average(self.pair,axis=0)
 
-		for i in np.arange(self.nSteps):
-			for j in np.arange(self.nSteps):
-				self.energyCorr[i,j] = np.average(self.energy[:,i]*self.energy[:,j])
-				self.magCorr[i,j] = np.average(self.mag[:,i]*self.mag[:,j])
-				self.pairCorr[i,j] = np.average(self.pair[:,i]*self.pair[:,j])
-
-
+		#Correlation of energy 
+		#Given by < Sum_t E(t) E(t+T)> = C(T)
+		self.energyCorr = np.corrcoef(self.energy,rowvar=0)
 
 
 
