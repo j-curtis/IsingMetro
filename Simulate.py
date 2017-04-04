@@ -25,7 +25,10 @@ class Simulation:
 		self.energy = np.full(shape=self.nSteps,fill_value=self.latt.energyPerSite)	
 		self.mag = np.full(shape=self.nSteps,fill_value=self.latt.magPerSite)		
 		self.pair = np.full(self.nSteps,fill_value=self.latt.pairPerSite)
-	
+
+		self.meanEnergy = 0.0
+		self.meanMag = 0.0
+		
 	def __repr__(self):
 		return self.pair.__repr__() 
 
@@ -39,7 +42,21 @@ class Simulation:
 
 			#Run one time step
 			self.latt.metropolisStep()
+
+	def timeAverage(self,t0,T):
+		"""Computes time averages of the observables by sampling every T steps after t0"""
+		numSamp = 0
+
+		for i in np.arange(self.nSteps):
+			if i > t0 and (i-t0)%T == 0:
+				numSamp += 1
+				self.meanEnergy += self.energy[i]
+				self.meanMag += self.mag[i]
+	
+		self.meanEnergy /= np.float(numSamp)
+		self.meanMag /= np.float(numSamp)
 		
+
 class Ensemble:
 	"""This is a class which generates an ensemble of simulations all starting from the same ordered state"""
 	def __init__(self,Dimension,Size,J,H,NSteps,NTrials):
@@ -87,6 +104,8 @@ class Ensemble:
 		#Correlation of energy 
 		#Given by < Sum_t E(t) E(t+T)> = C(T)
 		self.energyCorr = np.corrcoef(self.energy,rowvar=0)
+
+
 
 
 
